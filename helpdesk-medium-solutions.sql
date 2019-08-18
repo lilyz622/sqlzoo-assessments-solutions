@@ -34,3 +34,35 @@ FROM Customer
   JOIN Caller c ON Customer.contact_id = c.caller_id
 GROUP BY 1,2,3
 HAVING nc < 5
+
+--#9
+/*
+For each shift show the number of staff assigned. Beware that some roles may be NULL and that the same person might have been assigned to multiple roles (The roles are 'Manager', 'Operator', 'Engineer1', 'Engineer2').
+*/
+select shift_date, shift_type, count(distinct p) from (
+(select shift_date, shift_type, manager p
+  from Shift
+)
+union
+(select shift_date, shift_type, operator p
+  from Shift
+)
+union
+(select shift_date, shift_type, engineer1 p
+ from Shift)
+union
+(select shift_date, shift_type, engineer2 p
+ from Shift)) x
+group by 1,2
+ 
+--#10 
+/*
+ Caller 'Harry' claims that the operator who took his most recent call was abusive and insulting. Find out who took the call (full name) and when.
+*/
+SELECT Staff.first_name, Staff.last_name, call_date
+FROM Caller
+  JOIN Issue ON Caller.caller_id=Issue.caller_id
+  JOIN Staff ON Issue.taken_by=Staff.staff_code
+WHERE Caller.first_name='Harry'
+ORDER BY call_date DESC
+LIMIT 1
