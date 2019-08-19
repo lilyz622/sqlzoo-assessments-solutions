@@ -48,3 +48,15 @@ GROUP BY 1
 HAVING MAX(IF(LEFT(RIGHT(call_date, 8),5) IN ('13:55','13:56','13:57','13:58','13:59','19:55','19:56','19:57','19:58','19:59'), 1, 0)) = 0
 ORDER BY 2 DESC
 LIMIT 1
+
+--#14
+/* Maximal usage. If every caller registered with a customer makes a call in one day then that customer has "maximal usage" of the service. 
+   List the maximal customers for 2017-08-13.
+*/
+SELECT company_name, COUNT(Caller.caller_id) AS caller_count, COUNT(i.caller_id) AS issue_count
+FROM Customer
+  JOIN Caller ON Customer.company_ref=Caller.company_ref
+  LEFT JOIN (SELECT caller_id FROM Issue WHERE LEFT(call_date,10)='2017-08-13') i ON Caller.caller_id=i.caller_id
+GROUP BY 1
+HAVING MAX(IF(i.caller_id IS NULL, 1,0))=0
+ORDER BY 1;
