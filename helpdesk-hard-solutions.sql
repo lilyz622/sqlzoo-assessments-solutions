@@ -34,3 +34,17 @@ FROM (
     ) a 
   ORDER BY 3 DESC 
 ) b
+
+--#13
+/*
+Annoying customers. Customers who call in the last five minutes of a shift are annoying. 
+Find the most active customer who has never been annoying.
+*/
+SELECT company_name, COUNT(*) abna
+FROM Customer 
+  JOIN Caller ON Caller.company_ref=Customer.company_ref
+  JOIN Issue ON Caller.caller_id = Issue.caller_id
+GROUP BY 1
+HAVING MAX(IF(LEFT(RIGHT(call_date, 8),5) IN ('13:55','13:56','13:57','13:58','13:59','19:55','19:56','19:57','19:58','19:59'), 1, 0)) = 0
+ORDER BY 2 DESC
+LIMIT 1
