@@ -60,3 +60,4 @@ FROM Customer
 GROUP BY 1
 HAVING MAX(IF(i.caller_id IS NULL, 1,0))=0
 ORDER BY 1;
+              
