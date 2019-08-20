@@ -61,3 +61,33 @@ GROUP BY 1
 HAVING MAX(IF(i.caller_id IS NULL, 1,0))=0
 ORDER BY 1;
               
+--#15
+/*
+Consecutive calls occur when an operator deals with two callers within 10 minutes. 
+Find the longest sequence of consecutive calls – give the name of the operator and the first and last call date in the sequence.
+*/
+/*6:42*/
+SET @counter=0;
+SET @current_op='Nobody';
+SET @previous_date='2017-08-13 00:00:00';
+SET @start_date='2000-08-13 00:00:00';
+
+SELECT taken_by, first_call, last_call, calls
+FROM (
+  SELECT taken_by, 
+    call_date, 
+    @current_op,
+    @counter,
+    TIMEDIFF(@previous_date, call_date-INTERVAL 10 MINUTE) AS timedif,
+      IF(TIMEDIFF(@previous_date, call_date-INTERVAL 10 MINUTE)>=0
+          && @current_op=taken_by, 
+        IF((@previous_date:=call_date)&&(@counter:=@counter+1),@counter,-1),
+        IF((@counter:=1)&&(@start_date:=call_date)&&(@previous_date:=call_date)&& (@current_op:=Issue.taken_by), @counter, -2)) AS calls,
+    @start_date AS first_call,
+    @previous_date AS last_call
+  FROM Issue
+  ORDER BY 1,2
+) a
+ORDER BY 4 DESC
+LIMIT 1
+              
